@@ -137,6 +137,8 @@ const util=n=>{const w=new Date(D0+n*DAY).getUTCDay();
 const contaUteis=(a,b)=>{let c=0;for(let n=a;n<b;n++)if(util(n))c++;return c};
 // dias uteis -> dias corridos, a partir de hoje
 const uteisParaCorridos=u=>{let n=hoje,f=0;while(f<u){n++;if(util(n))f++}return n-hoje};
+// avanca u dias uteis a partir de uma data qualquer e devolve a data
+const avancaUteis=(base,u)=>{let n=base,f=0,g=0;while(f<u&&g++<4000){n++;if(util(n))f++}return n};
 
 /* ---------- dados ---------- */
 const num=v=>{const x=parseFloat(String(v||"").replace(",","."));return isNaN(x)?0:x};
@@ -198,18 +200,31 @@ function render(){
  function simular(v,ac){
   // fase comercial: prazo de tabela, mas o detalhamento respeita a
   // capacidade. Pausados (etapa 0) ficam fora: estao parados no cliente.
-  const detCap=Math.max(FASE_COM[1][1],Math.round(uteisParaCorridos((filaDet+v)/CAP_DIA)));
   let d=hoje, linhas=[];
-  FASE_COM.forEach(([rot,dd],i)=>{const usa=i===1?detCap:dd;d=soma(d,usa);
-   linhas.push([rot,usa,d,i===1&&detCap>dd?"fila de detalhamento":""])});
+  // 1. Coleta de Medidas
+  d=soma(d,FASE_COM[0][1]); linhas.push([FASE_COM[0][0],FASE_COM[0][1],d,""]);
+  // 2. Detalhamento - a fila dele tambem drena durante a coleta
+  const detConsumido=contaUteis(hoje,d)*CAP_DIA;
+  const detNaChegada=Math.max(0,filaDet-detConsumido);
+  const detCap=Math.max(FASE_COM[1][1],avancaUteis(d,Math.ceil((detNaChegada+v)/CAP_DIA))-d);
+  d=soma(d,detCap);
+  linhas.push([FASE_COM[1][0],detCap,d,detCap>FASE_COM[1][1]?"fila de "+moeda(detNaChegada)+" no detalhamento":""]);
+  // 3 e 4. Aprovacao do cliente e envio para producao
+  for(let i=2;i<FASE_COM.length;i++){d=soma(d,FASE_COM[i][1]);linhas.push([FASE_COM[i][0],FASE_COM[i][1],d,""])}
   const lib=d;
   d=soma(d,PPCP); linhas.push(["Processamento PPCP",PPCP,d,""]);
-  // espera na fila de corte, com a compra de materiais em paralelo
-  const filaDias=Math.round(uteisParaCorridos((pvFila+v)/CAP_DIA));
+  // A fila DRENA enquanto o projeto esta na fase comercial: quando ele
+  // chega na fabrica, boa parte do que estava na frente ja foi cortada.
+  // Considerar a fila de hoje faria o pedido esperar uma fila que nao
+  // existe mais na data em que ele entra.
+  const consumido=contaUteis(hoje,d)*CAP_DIA;
+  const filaNaChegada=Math.max(0,pvFila-consumido);
+  const fimFila=avancaUteis(d,Math.ceil((filaNaChegada+v)/CAP_DIA));
+  const filaDias=fimFila-d;
   const espera=Math.max(filaDias,COMPRAS);
   d=soma(d,espera);
   linhas.push(["Fila de corte (compras em paralelo)",espera,d,
-   filaDias>=COMPRAS?"a fila manda: "+filaDias+" d contra "+COMPRAS+" d de compras"
+   filaDias>=COMPRAS?"fila de "+moeda(filaNaChegada)+" na data de entrada"
                     :"as compras mandam: "+COMPRAS+" d contra "+filaDias+" d de fila"]);
   d=soma(d,PROD[ac]); linhas.push(["Produção",PROD[ac],d,""]);
   d=soma(d,EXPED);    linhas.push(["Expedição",EXPED,d,""]);
