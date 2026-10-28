@@ -112,13 +112,19 @@ const tot=mx-mn+8;
 document.getElementById("upd").textContent="Dados de "+UPD;
 const uniq=k=>[...new Set(rows.map(r=>r[k]).filter(Boolean))].sort();
 const SEL={status:new Set(),loja:new Set(),cliente:new Set()};
-function ms(id,key,label){const el=document.getElementById(id);const vals=uniq(key);
+// pre: funcao opcional que diz se o valor ja vem marcado ao abrir a pagina
+function ms(id,key,label,pre){const el=document.getElementById(id);const vals=uniq(key);
  const upd=()=>{const n=SEL[key].size;el.querySelector("summary").textContent=label+(n?" ("+n+")":"");el.classList.toggle("on",n>0)};
- el.innerHTML=`<summary></summary><div class="pan"><button type="button" class="cl">Limpar seleção</button>`+vals.map((v,i)=>`<label><input type="checkbox" value="${i}"><span>${v}</span></label>`).join("")+`</div>`;
+ const mk=v=>pre?pre(v):false;
+ vals.forEach(v=>{if(mk(v))SEL[key].add(v)});
+ el.innerHTML=`<summary></summary><div class="pan"><button type="button" class="cl">Limpar seleção</button>`+vals.map((v,i)=>`<label><input type="checkbox" value="${i}"${mk(v)?" checked":""}><span>${v}</span></label>`).join("")+`</div>`;
  el.querySelector(".cl").onclick=()=>{SEL[key].clear();el.querySelectorAll("input").forEach(c=>c.checked=false);upd();render()};
  el.querySelectorAll("input").forEach(c=>c.onchange=()=>{const v=vals[+c.value];c.checked?SEL[key].add(v):SEL[key].delete(v);upd();render()});
  upd();}
-ms("msS","status","Status");ms("msL","loja","Loja");ms("msC","cliente","Cliente");
+// Status ja abre com tudo marcado MENOS a Montagem Externa: ela nao
+// disputa maquina, e assunto do comercial. Para ver, e so marcar.
+ms("msS","status","Status",v=>!/^ME\b/i.test(String(v).trim()));
+ms("msL","loja","Loja");ms("msC","cliente","Cliente");
 document.addEventListener("click",e=>{document.querySelectorAll(".ms[open]").forEach(d=>{if(!d.contains(e.target))d.removeAttribute("open")})});
 function bars(r){
  let h="";const L=d=>(d-mn)*W;
