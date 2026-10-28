@@ -64,6 +64,7 @@ th,td{padding:0}
 <label class="sl">Ordenar por <select id="so"><option value="prev">Previsão de corte</option><option value="ppcp">Envio PPCP</option><option value="corte" selected>Início do corte</option><option value="prog">Entrega programada</option><option value="ordem">Ordem de produção</option><option value="proj">Projeto</option></select></label>
  <label class="sl">Depois <select id="so2"><option value="prev" selected>Previsão de corte</option><option value="ppcp">Envio PPCP</option><option value="corte">Início do corte</option><option value="prog">Entrega programada</option><option value="ordem">Ordem de produção</option><option value="proj">Projeto</option><option value="nada">(nenhum)</option></select></label>
  <label class="sl">Depois <select id="so3"><option value="prev">Previsão de corte</option><option value="ppcp" selected>Envio PPCP</option><option value="corte">Início do corte</option><option value="prog">Entrega programada</option><option value="ordem">Ordem de produção</option><option value="proj">Projeto</option><option value="nada">(nenhum)</option></select></label>
+ <label class="sl">Depois <select id="so4"><option value="prev">Previsão de corte</option><option value="ppcp">Envio PPCP</option><option value="corte">Início do corte</option><option value="prog" selected>Entrega programada</option><option value="ordem">Ordem de produção</option><option value="proj">Projeto</option><option value="nada">(nenhum)</option></select></label>
  <label style="font-size:11px;color:#46515e;display:flex;align-items:center;gap:6px">Coluna <input id="iw" type="range" min="160" max="520" step="10" style="width:90px;padding:0"></label>
  <div class="leg"><span><i style="background:#8dd0f0"></i>PPCP → Entrega prog.</span><span><i style="background:#ffe600"></i>Previsão de corte</span><span><i style="background:#002060"></i>Produção (corte → final)</span><span><i class="est" style="background:#002060"></i>estimativa</span><span><i style="background:#e11;width:3px"></i>hoje</span><span><i style="background:repeating-linear-gradient(45deg,rgba(120,130,145,.5) 0 4px,rgba(120,130,145,.15) 4px 8px)"></i>produção parada</span></div>
 </div>
@@ -136,14 +137,14 @@ const cmp={prev:(a,b)=>((a.dv==null)-(b.dv==null))||(a.dv-b.dv),ppcp:(a,b)=>((a.
 function render(){
  const q=document.getElementById("q").value.toLowerCase();
  let f=rows.filter(r=>(!SEL.status.size||SEL.status.has(r.status))&&(!SEL.loja.size||SEL.loja.has(r.loja))&&(!SEL.cliente.size||SEL.cliente.has(r.cliente))&&(!q||(r.projeto+" "+r.cliente+" "+r.ambiente+" "+r.op).toLowerCase().includes(q)));
- f.sort((a,b)=>cmp[so.value](a,b)||cmp[so2.value](a,b)||cmp[so3.value](a,b)||a.projeto.localeCompare(b.projeto));
+ f.sort((a,b)=>cmp[so.value](a,b)||cmp[so2.value](a,b)||cmp[so3.value](a,b)||cmp[so4.value](a,b)||a.projeto.localeCompare(b.projeto));
  document.getElementById("cnt").textContent=f.length+" de "+rows.length+" projetos";
  let h=head();
  f.forEach(r=>{h+=`<tr><td class="info"><b>${r.op||"s/ OP"}</b> - <b>${r.projeto}</b>${r.pedido?" - "+r.pedido:""} - ${r.ambiente}<span class="cl">${r.cliente}${r.loja?" <small>· "+r.loja+"</small>":""}</span><span class="st">${r.status}</span><span>Corte ${br(r.inicio_corte)||"—"} · Final ${br(r.final_prod)||"—"} · Prog. ${br(r.entrega_prog)||"—"}</span>${r.pecas?`<span>Peças (estimativa): ~${r.pecas}</span>`:""}</td><td class="tlc" style="width:${tot*W}px;min-width:${tot*W}px"><div class="tl" style="width:${tot*W}px;--w:${W}px">${bars(r)}<div class="today" style="left:${(today-mn)*W+W/2}px"></div></div></td></tr>`;});
  document.getElementById("t").innerHTML=h;}
 document.getElementById("iw").value=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--iw"))||300;
 document.getElementById("iw").addEventListener("input",e=>document.documentElement.style.setProperty("--iw",e.target.value+"px"));
-["q","so","so2","so3"].forEach(i=>document.getElementById(i).addEventListener("input",render));
+["q","so","so2","so3","so4"].forEach(i=>document.getElementById(i).addEventListener("input",render));
 render();
 document.getElementById("wrap").scrollLeft=Math.max(0,(today-mn)*W-120);
 
