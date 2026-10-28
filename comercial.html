@@ -178,8 +178,21 @@ function render(){
  </div></div>`;
 
  /* --- 2. carga semanal --- */
+ // A previsao de corte e a data em que o projeto COMECA a ser cortado.
+ // Um projeto de R$ 100 mil ocupa 2 dias de capacidade, entao o valor
+ // precisa ser espalhado pelos dias uteis que ele realmente usa -
+ // somar tudo no dia de inicio acusaria estouro que nao existe.
  const sem={};
- R.filter(r=>r.dv!=null&&r.dc==null).forEach(r=>{const k=segunda(r.dv);(sem[k]=sem[k]||{q:0,v:0}).q++;sem[k].v+=r.pv});
+ R.filter(r=>r.dv!=null&&r.dc==null).forEach(r=>{
+  let n=r.dv, resta=r.pv, guarda=0;
+  (sem[segunda(n)]=sem[segunda(n)]||{q:0,v:0}).q++;   // conta o projeto na semana em que entra
+  while(resta>0&&guarda++<400){
+   while(!util(n)){n++; if(guarda++>400)break}
+   const usa=Math.min(resta,CAP_DIA);
+   const k=segunda(n);
+   (sem[k]=sem[k]||{q:0,v:0}).v+=usa;
+   resta-=usa; n++;
+  }});
  const ks=Object.keys(sem).map(Number).filter(k=>k+7>=hoje).sort((a,b)=>a-b);
  const maxv=Math.max(CAP_SEM,...ks.map(k=>sem[k].v));
  h+=`<div class="card"><h2>Carga programada por semana</h2>
