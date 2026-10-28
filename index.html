@@ -130,7 +130,7 @@ function bars(r){
  let h="";const L=d=>(d-mn)*W;
  PAR.forEach(p=>{h+=`<div class="par" style="left:${L(p.a)}px;width:${(p.b-p.a+1)*W}px" title="${p.n} ${br(iso(p.a))} a ${br(iso(p.b))}"></div>`});
  if(r.dp!=null&&r.dg!=null&&r.dg>=r.dp)h+=`<div class="b b1" style="left:${L(r.dp)}px;width:${(r.dg-r.dp+1)*W}px" title="PPCP ${br(iso(r.dp))} → Entrega prog. ${br(iso(r.dg))}"></div>`;
- if(r.dv!=null){const s=pula(r.dv),e=soma(r.dv,dur(r)),pr=e-s>dur(r);h+=`<div class="b b2" style="left:${L(s)}px;width:${(e-s+1)*W}px" title="Previsão de corte ${br(iso(r.dv))} + ${dur(r)} dias → Entrega prevista ${br(iso(e))}${pr?" (já descontada a parada de produção)":""}${r.previsao_entrega?" (Excel: "+br(r.previsao_entrega)+")":""}"></div>`;}
+ if(r.dv!=null){const s=pula(r.dv),e=soma(r.dv,dur(r)),pr=e-s>dur(r);h+=`<div class="b b2" style="left:${L(s)}px;width:${(e-s+1)*W}px" title="Previsão de corte ${br(iso(r.dv))} + ${dur(r)} dias → Entrega prevista ${br(iso(e))}${pr?" (já descontada a parada de produção)":""}"></div>`;}
  if(r.dc!=null){const est=r.df==null;const s=pula(r.dc);const e=est?soma(r.dc,dur(r)):r.df;
   if(e>=s)h+=`<div class="b b3${est?" est":""}" style="left:${L(s)}px;width:${(e-s+1)*W}px" title="Corte ${br(iso(r.dc))} → ${est?"estimativa ":"final "}${br(iso(e))}${est&&e-s>dur(r)?" (já descontada a parada de produção)":""}"></div>`;}
  return h;}
