@@ -157,7 +157,10 @@ function bars(r){
   const saiu=/^me\b/i.test(st)||/^expedi/i.test(st);
   // ate onde medir: final de producao, senao hoje (se ainda dentro da fabrica)
   const ate=r.df!=null?r.df:(saiu?null:today);
-  const fimAzul=ate!=null?Math.min(prazo,ate):prazo;
+  // A barra azul vai ate o PRAZO, nao ate hoje: para quem esta dentro
+  // do prazo ela mostra a carga que o projeto ainda vai ocupar.
+  // So encurta quando o projeto finalizou antes do prazo.
+  const fimAzul=r.df!=null?Math.min(prazo,r.df):prazo;
   if(fimAzul>=s)h+=`<div class="b b3${est?" est":""}" style="left:${L(s)}px;width:${(fimAzul-s+1)*W}px" title="Corte ${br(iso(r.dc))} → prazo ${br(iso(prazo))} (${dur(r)} dias)${est&&prazo-s>dur(r)?" · já descontada a parada de produção":""}"></div>`;
   if(ate!=null&&ate>prazo){const dias=ate-prazo;
    h+=`<div class="b b4${r.df!=null?" par":""}" style="left:${L(prazo+1)}px;width:${(ate-prazo)*W}px" title="ATRASO de ${dias} dia${dias>1?"s":""} — prazo era ${br(iso(prazo))}${r.df!=null?", finalizou em "+br(iso(r.df)):", e ainda não finalizou"}"></div>`;}
