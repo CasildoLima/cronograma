@@ -61,7 +61,31 @@ tr.est td{background:#fdeeec}
 .heroB{display:inline-block;margin-top:9px;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:700}
 .heroB.ok{background:#2e7d32}.heroB.ruim{background:#c0392b}
 @media(max-width:700px){.heroR{text-align:left}.heroD{font-size:36px}}
-</style></head>
+</style><script>
+/* ------------------------------------------------------------------
+   AUTO-ATUALIZACAO
+   O GitHub Pages e o navegador guardam o HTML em cache, e dar F5 nem
+   sempre resolve. Aqui a pagina pergunta ao servidor qual e a versao
+   publicada; se for diferente da que esta rodando, ela se recarrega
+   sozinha com a versao nova na URL - o que o navegador trata como
+   endereco novo e busca do servidor, sem depender do Ctrl+Shift+R.
+   ------------------------------------------------------------------ */
+(function(){
+ var MINHA="20261030172934";
+ try{
+  var u=new URL(location.href);
+  if(u.searchParams.get("v")===MINHA)return;        // ja recarregou
+  fetch("versao.json?t="+Date.now(),{cache:"no-store"})
+   .then(function(r){return r.ok?r.json():null})
+   .then(function(j){
+     if(!j||!j.v||j.v===MINHA)return;
+     u.searchParams.set("v",j.v);
+     location.replace(u.toString());
+   }).catch(function(){});
+ }catch(e){}
+})();
+</script>
+</head>
 <body>
 <div id="gate" style="position:fixed;inset:0;background:#0b2a5b;display:flex;align-items:center;justify-content:center;z-index:99"><form id="gf" style="background:#fff;padding:24px;border-radius:10px;width:min(320px,88vw);text-align:center"><h2 style="margin:0 0 6px;font-size:17px;color:#0b2a5b">Controle Comercial</h2><p style="margin:0 0 12px;color:#46515e;font-size:13px">Digite a senha para acessar</p><input id="gp" type="password" autocomplete="off" style="width:100%;padding:10px;border:1px solid #c5ced8;border-radius:6px;font-size:16px;text-align:center" autofocus><button style="margin-top:10px;width:100%;padding:10px;border:0;border-radius:6px;background:#0b2a5b;color:#fff;font-size:14px;cursor:pointer">Entrar</button><div id="gerr" style="color:#c00;font-size:12px;min-height:16px;margin-top:8px"></div></form></div>
 <div id="app" style="display:none">
@@ -519,31 +543,6 @@ function render(){
  iv.oninput=calc; iv.onblur=()=>{fmt();calc()}; ia.onchange=calc; calc();
 }
 render();
-</script>
-<script>
-/* ------------------------------------------------------------------
-   AUTO-ATUALIZACAO
-   O GitHub Pages e o navegador guardam o HTML em cache, e dar F5 nem
-   sempre resolve. Aqui a pagina pergunta ao servidor qual e a versao
-   publicada; se for diferente da que esta rodando, ela se recarrega
-   sozinha com a versao nova na URL - o que o navegador trata como
-   endereco novo e busca do servidor, sem depender do Ctrl+Shift+R.
-   ------------------------------------------------------------------ */
-(function(){
- var MINHA="20261030165600";
- try{
-  var u=new URL(location.href);
-  if(u.searchParams.get("v")===MINHA)return;        // ja recarregou
-  fetch("versao.json?t="+Date.now(),{cache:"no-store"})
-   .then(function(r){return r.ok?r.json():null})
-   .then(function(j){
-     if(!j||!j.v||j.v===MINHA)return;
-     u.searchParams.set("v",j.v);
-     location.replace(u.toString());
-   }).catch(function(){});
- }catch(e){}
-})();
 
 }
-</script>
-</body></html>
+</script></div></body></html>
