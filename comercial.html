@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Controle Comercial</title>
 <style>
@@ -516,6 +519,31 @@ function render(){
  iv.oninput=calc; iv.onblur=()=>{fmt();calc()}; ia.onchange=calc; calc();
 }
 render();
+</script>
+<script>
+/* ------------------------------------------------------------------
+   AUTO-ATUALIZACAO
+   O GitHub Pages e o navegador guardam o HTML em cache, e dar F5 nem
+   sempre resolve. Aqui a pagina pergunta ao servidor qual e a versao
+   publicada; se for diferente da que esta rodando, ela se recarrega
+   sozinha com a versao nova na URL - o que o navegador trata como
+   endereco novo e busca do servidor, sem depender do Ctrl+Shift+R.
+   ------------------------------------------------------------------ */
+(function(){
+ var MINHA="20261030165600";
+ try{
+  var u=new URL(location.href);
+  if(u.searchParams.get("v")===MINHA)return;        // ja recarregou
+  fetch("versao.json?t="+Date.now(),{cache:"no-store"})
+   .then(function(r){return r.ok?r.json():null})
+   .then(function(j){
+     if(!j||!j.v||j.v===MINHA)return;
+     u.searchParams.set("v",j.v);
+     location.replace(u.toString());
+   }).catch(function(){});
+ }catch(e){}
+})();
 
 }
-</script></div></body></html>
+</script>
+</body></html>
