@@ -150,7 +150,11 @@ function bars(r){
   // ou, se ainda nao terminou, ate hoje. Assim da para ver de longe
   // ha quantos dias o projeto esta parado na fabrica.
   const prazo=soma(r.dc,dur(r));
-  const saiu=/expedi|^me/i.test((r.status||"").trim());   // ja saiu da producao
+  // SAIU da fabrica = ME (montagem externa) ou Expedicao em transito.
+  // "081 - Disponivel para Expedicao" NAO saiu: e fila interna, o movel
+  // esta pronto esperando carregar - e justamente onde mais encalha.
+  const st=(r.status||"").trim();
+  const saiu=/^me\b/i.test(st)||/^expedi/i.test(st);
   // ate onde medir: final de producao, senao hoje (se ainda dentro da fabrica)
   const ate=r.df!=null?r.df:(saiu?null:today);
   const fimAzul=ate!=null?Math.min(prazo,ate):prazo;
