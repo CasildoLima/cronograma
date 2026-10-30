@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Produtividade da Fábrica</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f4f6f8;color:#1b2430;font-size:13px}
+header{padding:10px 14px;background:#0b2a5b;color:#fff;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+header h1{margin:0;font-size:16px;font-weight:600}
+header .upd{font-size:11px;opacity:.8;margin-left:auto}
+header a{color:#8dd0f0;font-size:12px;text-decoration:none;margin-left:12px}
+main{padding:14px;display:flex;flex-direction:column;gap:14px;max-width:1180px;margin:0 auto}
+.card{background:#fff;border:1px solid #dde3ea;border-radius:8px;padding:14px}
+.card h2{margin:0 0 2px;font-size:14px;color:#0b2a5b}
+.card p.sub{margin:0 0 12px;font-size:11px;color:#5a6673;line-height:1.5}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{flex:1 1 150px;background:#f7f9fb;border:1px solid #e3e9ef;border-radius:7px;padding:9px 11px}
+.kpi .v{font-size:19px;font-weight:700;color:#0b2a5b;line-height:1.15}
+.kpi .l{font-size:10.5px;color:#5a6673;margin-top:2px}
+.kpi.al .v{color:#c0392b}.kpi.ok .v{color:#2e7d32}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{padding:5px 7px;text-align:left;border-bottom:1px solid #edf0f3}
+th{background:#eef2f6;color:#0b2a5b;font-weight:600;font-size:11px;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.est td{background:#fdeeec}
+.bw{position:relative;background:#eef1f4;border-radius:3px;height:16px;min-width:110px;overflow:hidden}
+.bf{position:absolute;left:0;top:0;bottom:0;background:#0b2a5b;border-radius:3px}
+.bf.w{background:#f0a500}.bf.r{background:#c0392b}.bf.g{background:#2e7d32}
+.pct{position:absolute;right:5px;top:0;line-height:16px;font-size:10.5px;font-weight:700}
+.nota{font-size:11px;color:#7a8692;margin-top:9px;line-height:1.5}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tab{padding:5px 11px;border:1px solid #c5ced8;border-radius:16px;font-size:11.5px;cursor:pointer;background:#fff}
+.tab.on{background:#0b2a5b;color:#fff;border-color:#0b2a5b}
+.g{display:flex;align-items:stretch;gap:3px;height:130px;margin:10px 0 4px;position:relative;border-bottom:1px solid #cfd7e0}
+.cap{position:absolute;left:0;right:0;border-top:1px dashed #0b2a5b;opacity:.5;font-size:9px;color:#0b2a5b;text-align:right}
+.g .c{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+.g .b{width:100%;background:#0b2a5b;border-radius:2px 2px 0 0;min-height:2px}
+.g .t{font-size:9px;color:#5a6673;white-space:nowrap;transform:rotate(-45deg);transform-origin:top left;height:26px}
+.gl{display:flex;gap:14px;font-size:11px;color:#5a6673;margin-top:20px}
+.gl i{display:inline-block;width:11px;height:10px;border-radius:2px;margin-right:4px}
+</style></head>
+<body>
+<div id="gate" style="position:fixed;inset:0;background:#0b2a5b;display:flex;align-items:center;justify-content:center;z-index:99"><form id="gf" style="background:#fff;padding:24px;border-radius:10px;width:min(320px,88vw);text-align:center"><h2 style="margin:0 0 6px;font-size:17px;color:#0b2a5b">Produtividade da Fábrica</h2><p style="margin:0 0 12px;color:#46515e;font-size:13px">Digite a senha para acessar</p><input id="gp" type="password" autocomplete="off" style="width:100%;padding:10px;border:1px solid #c5ced8;border-radius:6px;font-size:16px;text-align:center" autofocus><button style="margin-top:10px;width:100%;padding:10px;border:0;border-radius:6px;background:#0b2a5b;color:#fff;font-size:14px;cursor:pointer">Entrar</button><div id="gerr" style="color:#c00;font-size:12px;min-height:16px;margin-top:8px"></div></form></div>
+<div id="app" style="display:none">
+<header>
+ <h1>Produtividade da Fábrica</h1>
+ <a href="./">↩ Cronograma</a><a href="comercial.html">Controle comercial ↪</a>
+ <span class="upd" id="upd"></span>
+</header>
+<main id="app"></main>
+<script>const ENC={"s": "SqUwj3Ov3VmoNfFQC1gftg==", "i": "J3FZiLB5/PIVC6wVrFxl1g==", "c": "Esd20eyPz40XLtJpKGD4zjCtb6SfnFI838crB0F9wgfGKARW6cM3Luksk3IBJ2R8RhJbo4nA/NbOZLdyD4uwSqcNhBCfMoNnMQZdlAlVty3N9kW9nj2Eq2vsX9bykkPsrr7/jRAjkaZKjXBs6pUc8SSblLO+S7x1xfNJLBQGpSy4WMi+s/Ojl5M37+V88y8knOpQdscdZiAlBcvV6IcnJvs4l6FG3mwL1aTzcjtYW3uzQ/hNkazAKZxAbj5ms2LCwMaWQDFGv/KNSCbhyM7FE8FEgSf2Yb4Ie/F02ChF2XJ71DnGEVcPek2WNelcUX5kxodenWAzlU2qJvEw1pRPAoa2vpwQRDznfGI2Xt1wIlHQ9FwZ2vWhorzWFaanjN6Y3CW+vH5rE91AHlPHMqcw9AxPvJB4dbh5SWFYMqrh09TXMXqLUI9WRBe45P51pmT+JzE3sd39jUwXGLWQCn3PuXC2sDp+jiHmk0OsIYkYHLqJdl8/LgRT/Vd7I2+6hZjPRB8cfl+TtfLINh3bHSmGDH19t4PiGqAtDbmSgQ+8ccb8pXivVJ0evg1kxqxCm8N0JqyDls33ENXwvBEX4FfigwjV4n+WADBYLo37wwUSmiPRgs7SP2u4JrCwhmSpsktKwih2CcCuuHfHXj3CvVkbNDvib4ZkJhgMei6PEbKXkb/xfcw+q/AU6ZVZQ6sdj5lN3WED/qBwmnUfpbOtOv1+Vhkj2WM++sgwAL9Uu9b5oL69xjqEujFXLmrr0ibldQqx0YU8Pwk584x91LYWeuGdku9wUdXDfW+jRdfOBtyZUvdZWAjkWWPlyI+2qAC5kJVwaOUEuN4mp5qsW0xWkzFVzuaT4+qyfGhm5pGv+KDQahU5SR3cMDWSrvfiagAXYUApw3ZbjQzagGRwDtuq1SpkTMyH0dvG6XrZeIfd79vqAUKoIFOtEgJfaXvUHkRTHbH45IKHA0ZG0xRG7hfL09T/ij2qO9mqKSw7+Dh/NQlHHgFMOtnNHdSGH3PryAhrydO1jcQqviFYIGBzfhlDX2GJ+l9LEesSdQq0cF04uzqm59Y24Ad3K7pz7mML/oNZYwuiimE1Gc8AVa6ahmqjwQDDGDMGkcRqyNK/TSf+rgr5AOWqnbD3rW1qfCtOqEhc5y2eghnyOQ6yNCMMLyBC2ToZAsmwH0L3GlZzF/vqldXP/atY9u7pLvZlBBG0HQsj+eNeCRbK3luix4Up5roHEl51mGKwvv1AiELmGynGTiOx9M+B0eOtxIv+l8EKkt7VbmnzfnHUB1Dtd6fmhaQTwxNFv88QdB/rfzSKflLR50j5AhwwDAPJaU+Nbk7tUPXTMobzesIEl9snSlrTvwaon1ThUnAEgRCQGiXanCRWrfrloOHFtxXLf0djbh8RPeGlofDnBnXyeX1mm89aHEChyy7+RfRtIg0aIWGo32zeSq/93Ap1tOJf9ZWrIek2c1XI6SYIqijBGuvszCIslk+1orSoOb0hzxL2RPUHCMtL4dczEQ24OM3qCL/J4nCvKmH+i+sxnXzCq2xn0krxWWmQn7qsFAS7H50FOALpWqrSHenjRslHV8ph4xHQvwR6Ac/kmoGz8HaYUhAluHXPiMCjv2xR0nOFKa4aPfbG+IQ2e/xWTSJfPLGaKK7iQnlqb+Pn+zB+Qs7iLr9G7JxOG/OX3ENWXu2R6RPN7M2CQXx6ILn3RRreSHJEV2wkJcSzPesfM5htbeM4R3GZK0sk/tF3DHNldPZnN9Bod70gtfCRMXPIEm3I9IJV24B4aqgAJiq36Jk8b9u5/hz+Z/VHoLbaB/WvfIfhTdR6eVDeWmO1QzX97wM6zjtRi3jVDFXmP6n5ntXNEsmPbhRixzhB0puGrLB/tmbz98dROw3GP32m6GfxkqyhgSHESVJ+9elcQ7iMTCXEEiQ0P3k3lTitDkxljXMGr4AW/2ciMNlsHdi1JEEECX+wsJ/mhEwypp3WdRK4bjMWsUSyge/3UKVhhMtK188/RTs2RnJ8M7+TuSGjXOHnfqOYA4Oa9l0i06w5UAK1QSf54JejWLQ28rKQn0ZnvPsXIHJbPgFJJygE3KD0EOvcmGjbecimGWoJ24NSZCupER+UlbVvWknPPf4mqgEtp21lQFxEEyHW6Fduwj9UBJUXoLyDL6wVJjlb/YTuy/b13k3hDSSqgGYxtXkRuXyeaqCriQp6Ro9dGx6v6N2kg6tcDIG/yO6jr4rOIijcZ759CgGfZyjBNNidGeY6E5TyO0zzl7u55ZqGoSYWhTUrkNYnMmQYNZVITRf6qzL56X3N7Mw2COKto9KhlR6iKWbVdRo+apb98/neLv5VB66hHkycvbY2ZwGicC68I3d853LMtd/+zYKUG+rMs58RIhqOYj9rZ1iWS7MZ3DF+4lDMpuJPhR2RwgeKr4XxkyFvEvRoewOwA3Ut0164drYVv6TlUjEdmCTT6LiB75zuRu0SPYlTp8IyhQG8WH1FtwTtEEYjvVT9NNJqJwvW7BtVyyI4k22aA/lKtysSJSdqZqgLaTowVrsLghq8NPGGvZEF+N+qmc2SobQOXTUGaktn49ivbbeW2OpvNmoXnh8iof7m0fzMAmZvYVNlcq6KIccDpfQZjkXGOLBsxBYGbwtCL1SP787Rb8Qld0E37HdB/iNyxDiFjySKewOZHVEx1sJfZESLueCKM6ahPWRLCnHco1XIZTm0sm7tA5iZtg0bMAefe9sC8w0NrZsqqEX+nEK6eufgAN05yhCvM9K9fKKzbeYOfNyR6MOWlLQBy42IKHRGNaWaKc4DfVPbsyp7CgljZZKyljlJTVgdbk4FrnENO1Pj2xCSfJhlxtlS8uFD7/M6lWooaP0BC9pUepcyssoYK8gSXFUQmRK4Jhv2Cc99+8daKYzrQzI0bAZ62K1hx+Y8+kKJorADQpzUHt9BudtkiPprz4IZ62XRl/yYbLOrPghih1Ef2A0HPwbsDRzF7jLUWhPXRuTrWA791Bc5SSha9PzD6XMbxKcP8scLo67o8A9/RCO+NWp7IN0c5iF0pKJs/lqjIn5w7bp6ZlAjmJcDznBSe+EE1RIy+EOybPoYDOXyGigFSIsOSyW/Wsvhgu1bE/1q9/Pnsrjr9kYzXXsEpFMMp8x2Teyr9MlE42aSAuGLUo7GLzCk0/dZEFCQyhiErts6wTihEXy4Twb2uL4TUhbMhSY0Vmedl9J0MLj5/TkbXvsy3p84WOm6V0z9Sia3XTKJNKhkNUV7pGxtPZXbz5k0ApQ0qlMBLctwinzzLu0y17VDYUSeyfOm3+Win6IdxSgvE+Y4vytp95hiMd4ERqrRNrYYcXq/QMEPoZ6erpJHoZo/TsLBIflg5/EotcHGaZMce/peIDkRcyBGInTOHVK9Id6NSmI+BCEpMQ90PGYP3lLPYLsYZL0tMOamw/FHisyMOXLufJvdSroP00j0Pxm96iaFkRiiPDTTnhzzKd/oYuSA22cDGZr7exxCAc5WWQTKoX/sy0HRa0CBNa2vtYx6bB6aCbfa1WuTQHI9WAwCe3Iuu1HdTkGL81Aq5jTfmIk0rVEtPUosafOa4+BgyCsJJ4OElSAJBjGd5FeS/vqEckyiJPHi3T4uQ8bd7kdU2aqjaArKl3A8zlNX0FurSZIpZpqLewQWxlx7d/+1sPxAXXJcsXoE2+ezUsiXvPSzWRi1TcScjVtpuyp9OrCLCnD7VV0kn9WjSnXy3dt6Sz+a6lqA3uoGB6pR9tXvkxv/IV8sMv6mGq+Pd6SBOrKLOgmdykTq+R/nQBLZcdAIqol0HDB7Qze3YLQvU7+VZgcO4b+ZtEAT5nvyN2+fYcaChNDUaZyzylT6ORMHs9tYYJ7+7LNZ0op9NiRfaRndmnm6Aa18qRlTj4w1jKMhrjT8tiquQFbmS+99mr0YJl5pol8ZvwYagnxLyIZJ9FMky8bE71/p7Ldi1lPL9+ORZKUaMvDGTySNpzC9I2ncvOywbbxV/7kHjALgTUve9GraK1TXBF0QrKHRHN3ZCjUv5oD3tWGw8nmOfSA1+TMAXfRp941igq/b8SNuu7ZgPnloYYZoMPToYq92YmUo9+cNqpmm//QilmJNGDYnDLJPzdOFhlxjY7L70xWn2g4ZKwWgnP/suZ5lp6HuiLedribq0o0taqsB4G/9HWOTJeyrYPHADvhOSJL3JsoZsdECzTpt+yQlYL3STZOTray+bcRet6sGK7UYJRTty65AIxk6iHmgX8eUZNOkK6pga4QbD3bsrEbAumpgt1xQDJQK4Z2IQ4hnnfA9TyQYocSgDEumIBT6NZBvc9Kt3Bk5eg9dJZTeF9MrI5pV/edfsPXlKAC+4i9WAi+aZv/k0JR9G6zT5ev253+rV7mcJmbVwX6kDuOcSBmiiqNkjLAl6N49H7PeGdp3U4bNKwPH+Coxwso7mCDgM6rBwpL1pimIUwls3ND5JmSDcFNR4gX1Q5K4Neso9bQUPKrGroF1b+XhHYDqZzcvWd3pCiAdlfsRLQ3HzrdxK4t4+NFDVYod0kfq7f0POWHQPAp/oW9NZcyfDVE1lVX8XJCqW+mAbUO4P3/+2gIYVstDLZpP9bdWdMKjbEgZRKs7kQBr9lnquMukIY4bFVr6dnYSBo86/dOsg2DGZH63EHuetUjaCF07gSeUzoskJRlSnJg6ZhtB1oS3lxqa8VvBGIm6rIb9wSHdFWlDmMojSevyfszm06Zovyw0EYkZShNqM3DYqrWTO8JSoTg2XVDkqocQD6ZiBHXQRMV04kypE6dXmjkQIO/QH/Pnq0OKSzuT9cyOY4GITYVh4iDD1xSwbfkkekMXGx1GyJ8SyggawyX6SxPbkL8URTR0Vb4WqKB/6fjJ/XuCQTvdp99eggegfhczreUnGQBG1coA/wfrabQw4yPxGFwq4qbsGJjS0tWrM93eNgnrTy596NCa/QEsiHMcVN3hfPElf3WABKKuGcKqB2m+TdIhV8p/iaLNKgu/+DYr8AE8wXf2pspwpyLTboGYkb4bzQJNz4MEO+WILDGBchobMFAHVLmPGT4PhGsdcLW6G2rtB4L0xKKqJHpDI6CU6ge/nk4NME6snKW9qpOQ6oTlZDMXgHcdY3m1p51wrbIfqslmKW9Z0UlnsivfnWMJWj/DxE6pSIzAs0bOC7rZGZUto3cNXGNwkQUP4d4VBDlvTsHdr0Ko0f3nzSGcl15/csVTN0lAHuVEqdetmhanOnrUpbzGCyzVmw3ZvQXxfC+eV42Ab8iQOFyP1B0+WortB0GEHu80gtvZd3aPZZc45hQrJ0HYSLv3Oc0UKOfjgJdfMF0M+c3hbSGASnL/TieNM6M7CWdiXbQkt/PDljfcHgiaNMj6O9LZfpcyaukh8SXEYOCq3r4mpJg97Rhy9P0nZXzQeqC0grwZN3U6jGvELRPpxIMU1Yl/z2PxeqNU9EWlvmIOmPfSrwLaucUUVn74Zk3SaAMdBhsxJWjYIPcvyGpFTH5CnMkeJMobP3i3/O/UizPQLq8rUTA00xH5ZimXXJ1PL30rHRXP91Quhfx6cXB6Uuu7/41q0IhYNOxd9K4JIRku0OqqF2KWwHb7Clw3T28LfdPG2zyhJfgupMgkPzpGAeh4D0+fkcvvut3gTXdVkMCnHzIkF1K9q2hKDW+NRRWh1+6kYPyk37NDRHziPGTec/YpY/oibOW/F+yS57ErYsybtTgMmFpBY6lKHvorrcKeHfwtZzaoJcUPKc3KpzHG1Q1evLFenCTAixH7nkKrp1Fz+WEp+O3o21ts+M9y8E2NOUahaxM5ZJvFoCgQt7BDAmNS+658akWpBJ5SgGeCAkbO0B5q3rU2L4MjXDPCs/yvDL3bjR9B2udxbz8k+M8/t0jK+zhVqL8Y8KCJd8qiXU389jqbsAfvD4MQsAy/fS33D2xVgHPS2hLPwdoXPcA2PbzTWGnmWtOavd4W7GhzLpLSozn/D99eQL7uSl0EiRAfQYpJAI2TL1GbqhTkWpgFVhMD2aUJehKWen4e8GAscZRsZRnxvKE6HPkgK/F7jYTEP+7YDyCwOPxjTFAdjSFUsqXBYkkTKAqRyK2PRaC+TSs8ilQxEDhejuI6FZsKuo3E1+57Gs7tpIB7Z1p4OyqQ6OkvUs/UbDkTPx/OhOxCxEqb3FbvCO7afuoUi9sqLm3KN8Dc+x3lUDAgBCYuFktO2uitCHax1rP9gRw3eS0dDzHl52mZy0Y42v6lNxxayOXVoVqkpB3wgk4fTSxRl+HplCN9ydUVARX/v36+0yvUjr/DFzIqeMZGZitcaqN7K+yZCZuHxhh+OXBTWBq00YMyDRwURQsMCNsFFHzm+yz4cw8mMAxwaeDSFKVQqNsId7hrnCNVsDkvk7VCV22o3z4befjSgdxqjlpQFM6ja80vOmKG/tXp/jLTCWWQXwBRzHJauv11PQjjI2d3I8fOlaDDZe1h5PiJ3cQjxd9LgM0/kwuikcRWX/HzFwacLxVcNuEWGNj7QwtMcKNmFN8VM6GY9Nryu4JuRoDNal5/6WgKaYXemIvOIGKAPSvmfOaGPn0ah8kRki/AIC8vKgRpDjQgwl0IDD0NrWG/noNhJTds8HYvcPW5NjQmTDGfGZ0fIVP6GmUw8vjSTK5dOvkO3tWl5LrrofS4f8hBHUxC8F+KpTTjUSR+uFhcbAae4GBFIrptlNbERxpv0O78lFfYfi9SQIYFzZqgeeDyT+vVcc4IhQnGpHyusoouZaAYGOzFWmDI1Bp7ArV88e3oUUJxUXYQpAB1aakRlUPiTxuNUHzF8UUkij7kHi//VlYn1fLQBVsWKf2jfyzjllIaIHSKtqnzK9dY0HtYRgSUfVg8d+q1ojR8capJ8t1DS/RqFgagCWMFCoHMqfL3gwPmBlfj+Vxr6x4yJSwFpl5l5J8dmDIiJ3hL/Mc/REfhJ337yXNfdgCMFzq/ZqRu8NEF5cuFifXWU5cIEFYW6ilM8RKNbYpBko6ZmXffuYThlUpm1Cxt1otMt/iC36qwdP0m1l6srUQfk3719FRPPDP6UfU2YNK6Qvrj0Rl1D0j1jc0ThClriYuHoGUJ+Vu0E02ovY7rOxd0vv+r2XFAhtbjbZEUFCF56m3+puOz/ty6D7bTon/LDLFc0/ifDd0SJoiwHa199W2qjzyqRkktKl3O+kVREQfeju6LFvGrQii0LTccBnosBZGKpru8TDZXoCeRAZY4DpWN5UwH3r6zTxIJCGMdMNm9X5gAbJOTxn+cKVLC39i5Fvxjcazw6caPAsIYptRK7FQeEM7WmufHVGaIEitbPiuNtbBFncYZnXXhwCI/cj3djz16BFocZXLQD8CfZDSqgtsYBhuBgQG88PGqAy2i/cRtozN3lUVEupktMmHnL8EnBUkG3wgWh1Lx9gVLhLXTN2FtnSS4V7zS074jbJ3ilvfcGJo5FPLtcajClHnCrNze5AzeUjqDgi1ZjKT3LHX+vo7Kmhel/NFLeVUHaPw0rHYsI4B0m9+v9aouxbi4F7J3LeUrrykU3yGGBV/K2OSdCmZ8zKwrhQLvG9Ct+nbNW3tLvwpUO1JJ7HrAEaiOGti7u9xtdWrCNVuHKGSxsR47pObWKGhJzO42UCYT9ayKBvx7RxLO3vL2WDu8VxzkskYU6G5NqXCh6tyvB6myKBh2+223ciuFwLS3FiVbXmdZeLP2BXQR0kN0Xce6hz90ZLF6V4VtO2XJV8liXo/q0wS/o8OgdpcjOvfwvyvHVFfPqO7QOj0BQvW0gW0oznleVZiGVXINJNhtcGoLJeYjXGGZIlmjV/aEp85zDkx9By0U6BiMHiW5cK6sEOC5vWG01t4GSPUvCzxYakuuigP3+VATKoZBMTwnqpmSG/RJmiU/U63pGhLtISLuB/MjZDl8DSFb1t/2+fIYL6EalKHuKnNaTPoDavIMTHJSh/61yBXbtsr2nLCJzGX5KpWKqW+3Imzo0UX7uF/tNKHH+4yeZ0EU6WVJVAxstZHZAkostxAcwpK3ba2j3/abhnd1JL6QAjX/WytBc8EdB+vjis0hRKzO1mjE8qYlxunr7UWpYOyRGDovG00/7uOjwHDPU0fj6AO/C6KxjcxdgUYGibVp9IcSIAG+MZmQs6d/rOjQCy91loHT3V6kmH8PgsxKRgdfWBrBVgSPTjw8SSAXyugRYkuKsw4l4iSwvvUkPucyPesAVw+inmhPrkeZ53w3GdBbrsKQ58F3jpc2p+enpAtt+K7JJmPirf6XwpjlC4GVTxn+2f/EWfTWT9fLipiDEWADW7ZtuLvw9XhRkpsPfjKKsJ9oFFHHlK5NvfkDbLcSxBNWH0c6k0opvpXK7Pb4axhGLg4USo8XG2SyCQVkT6nM65W/5X96Eik/BfY8ZFccMwL39Gzusu0Z+oFalteLS16vJa7pubtR5z6FUZzlccx0ogGabQDbo9gT11B4ZlHZp0okHfDfJRXxU249E2I8jZQG8nZg1MDeXlQzcThqY9/dv79UFlGJa4xgcPudsELKU+Wtt0hzBoTM9hsfnR23ZTZ0IMtadQ02NsFHeP3ZJ/DrtVeONW1WvF3AZ2zQtnVpKcQGoJ32s1ZqQcZ+6SJVpIG015UjqOx7Au8UmQd98Pg8sUM5PrHVv1LMe6v4YDy7OLPj8R0Jfy7ewklsDMGZMIRjp2It0Iyx7OrPfObk+Jz9ttnBQnAnu96kdWogx+2ZCZmad4KSrnlvygZ19oW3X0JAYz8s2784fm6O44JP3XDxy7hGL5uaZ0HgviHxK846YQlxmHeBWkXdHM6vEIFlnvyobRgv1LmRWJXQy0y2jkVaUwB+iBIUbk9tCYZYq3Wip50S/huhnDn/YMaSzdtpyqt9BujjU9rUb8cyB4y6iEfCEg8ZsS/YAET17a4VM/TlRokYBIUJ4vvSVpKSbOl8qWg5EesCFAkyA0WYjRhUmvZ203kZJFLaUCTDAPZpbdXFN+GV7Chtg3KF0JAyI6LRH5PGtwhk8JhhY7leTCmw9NfFOzIQhd2Ckj+Ph5nxnDgkSxhnwfz1T/q/QrbhYyQVyKMsdEmD7EV/f/UhcZMHSz6EAwh5kM4IVAf8tQP5aaET3EDxoXq0uhERj5XGR+a5xCTl74RX2ZKSmKsSltKautLXX4mfq+2SeFx9VHLs0X5SrelZ8PQT8r3AiXHii13ZV2DtZKvmFV1hVzFyFT8v1FmJz+cCNjcKZGsp9OOcev/Ji51DpUdVF8H7XlSbYzHOEvNHaYS40xrni3K3tPPuWDKEGyLahvVrS01yzJSWPn7EIH5E02VeV0MdXxbA5FUSoLs0Aq2163vO4m42q70ZIxtyf+uucMlSwzT9hoy0N90OR579beynRPKsm6ADU67t5od0N4LuT1vvMa6Q9UGQ2kyaV6bFDBh9I4ZtgKRwOnNbojpoKzuDsfsa9mE2dqIfjbo6dMKS2JgnbZPtv9aZ0LNugrHr8yIgwD0VOVb3cqqhYEqK3MdJFezLaUpEQZsILr/KEKSd7CtP/njcIweqL2afH4rrWAOhKmmuMfwsrwhOHVdaz00FH+4AuR0hdYUm6TAstOC1VWLWVc8EzSdWllTEFkdtVgN0h9u1WH4paaUW+ZK+B+eByQ2nUirkn7fDMvMqmEb3s0FDhrH1C3zFDP1SfwfD0T2DjN+SnpAdAZ0tJYR71Q9Vzqmrpd5sxugbizCxf8BaQNAk1ERD6yVHwy3MJ/HVjbOAa3t337VnLslqcXSr2JZ0KiGg6B8y8twRFcaCqi0bNiOyNQs8woUgEfO2d+KZ1/Ms9vZ6pe7LG2pTkhOjChZQZE1/RbC2cfYvS5lGpXx5H/c9F3/quvMskww6QNwQUVyMlq9YP3Mk61TUTynv75LZ8z664jp5nQ4FcDGFgDv8qz4IQGkhYyCk5+/gY+Ym+xDNPDsrUhkxoss+q3tW6stV0jf1gjdOK+7jWIEyGg+vcDmovr3zS6jQxu7uVKNpmNgkqn1oOuh/MqF2HkOt4AuO9lG0Pg6sr82jZLJliYFCiYOjWfVpHYD5wxd6g5fmAvYEPLBuOuL0NovqHPfFWt8ZKcid5UPg9opKAggJp+CIk9ja07SFQ4ruysOwQBLIx2uq26VUmTgWrm+4wkmz495wYNloY4zEJaNhfSyS3jyD2pUA7KrTh+DmJPrqQd8gILsSmQUreKAkDqdIi413TBqYePu2TSEnEy9qCNzP/cU32X3W8IWdu+Fx4ntUAH0AvPqGJa510uSaUJAQicKA0A6IedWDHXqTqEBejt6mwlj/tFtg187LWm33yX40eSUamlxHoYJgIJpw2w6XFy8If3nqs3TYU4lbxEUrl6BTRJF7tdAEdbOI/Zk7TgQk89iDwlaTbflJ+GypPMj1KKRSuVoskWW4d9rrJXHL2KQngOCSaLxnb18V4+vKPt6P8/G7lIWk4bunFqrFrGVwtjneShdTbe64WDEw+97c/+Gejp5WVeqdwWDUtnopf7vwWd7+PggFRB6mGgifq74I8w+wYVo0gBkR1F9DLzRMIDzLoZViA6wbi5HxkR9dQ1QJK54/aUL+/83Rmhuajgkp8fX2/Rv7IrxlXlasVpdO11dLnOSn3QfxelIt9Dgoz7MhCbLVl3QcFK8OhFd5hHIJjmMHCuVRynSns3P7uW8XE/WZiWBpmxmMl8tWNVOsjdJS2DVDqh29HJC5ZyNuT1IQmL8XsN1olZAarvDP7ixPRO1b01UrwGYGdWWWL/Fi1mSzHoWzkeM/5/9NxZnm6vPIokdSAJSh9s6+V08lA48uI7cRQwGflmJwP+wnes0wj6r/5Y9NAuV1mga+okWsZQAZ0G+SkDMVvu1G80g9F0lQnotZo2OLWWawPJAwvJ1mHhQWO0lygvASyMZz7fK/MZPttzJJ67i+Zkj6sFbTN1XPRr2dgxFobmC+9IrD99eW8L5viPeUOZ/uYu4wsMPEK25oI6tk9ll3DM+GZPj12g3Pkthbkn3r6m3nXnC16H3az2+JdMba8XlZPVnMns+9AYZdqg5IiisraC2G+hmlG4jDjty+qzHYDmeYn+v1+fOLSk5AOAypa/HU7eq+H8TGovGsyk9oQofGWp6SIDR5LccTbE/kdfbwRdF7UuwOV109oLLDVvTpoljMnZW/iJdRnvkaXrEw4+PAxNGfeYvKvduMMsuRSvFzxOQ6FNx0vjOKQTeNCUZsUebPMG//iRzuIYzuKNMRepbHn3QjESe63Ye5O3t/H3XCqTC2X/+LAKo/0ruN3mDSlpX9TUhm0n9wkv223CJgru3C7W48ExcIzq99EmkJhRrSWzwvG/YjJly1I1185qMVSIaOlOgnligO1tH44ughE0TpgWsayuE/CPGnTTlUg/OcVzBppdfQrdVciXAbMTGs1YlSJTu+RXpltI+idJaV2Fi0Ebthwg1IoIcyF4nqoEEg4VQjI+tM6r0jVSjXcn/dQ9ywNKldlHkKDQgJpuhnVlGBFLrRYkzJpyCOG4zr/hPC3N97tq+1IdRValw3DVCSO3d+9sqVI7t6RTTapVIKex+gZhtbBeUwWlfEiuRzlSs78SY+fxZ3o0p+E4JAR3mRRTZBPbSoSSAbUeZ80esaFWcHCh0wEwjCwbv22JbAOQS0PVrQR+ywLETB87n5LFZihzqHYabgGFA2iNksOg0OzSpmJtynmIBNOjwg5ijW0rggUoAm+dv48LS+DuM3BqJK2oQI2yzvpIrPF9G29/8edf9m+4JKpqNvRcYCX3d35jR5tdQPckjrb3ATc82v79AdAKV+URRdfn5GOC4G5XWzxhUB4I1XDvzDQUYh6kopDYVBxWXQFcmgsyTk6PoOPMatfBKNQzMQqTv6Go4UuUYuaZy/E5qStQ+T0jPR2+2c9i3kFCgbDXwVoNSvfAqhnaOb9f3kbe3Rn80wZ/U5RT8LoX62pJCz2KbncJShwSDUaJXdrCJT+87dWBrvpwoVGk5a9XkwJGde7qTfgPKNmse9DeIOp0ziSANBqcaPO2WxVAcFh4GPhFsDEUL4QXBLd2g442DxwZdDfIwdiLY/26nlHSmmAnryBflXxeqg7R3qZpw9QKLcX328/5f3p21fpge6ANA84S3BOCZXhHp9wRI8VnupxswZVPbP8Nn2V6zOj9rXryhpBg=="};
+const UPD="29/10/2026";
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function abrir(pw){
+ const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+ const k=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64(ENC.s),iterations:100000,hash:"SHA-256"},km,{name:"AES-CBC",length:256},false,["decrypt"]);
+ const pt=await crypto.subtle.decrypt({name:"AES-CBC",iv:b64(ENC.i)},k,b64(ENC.c));
+ return JSON.parse(new TextDecoder().decode(pt));}
+async function tentar(pw,silencioso){
+ try{const d=await abrir(pw);try{localStorage.setItem("cr_pw",pw)}catch(e){}
+  document.getElementById("gate").remove();document.getElementById("app").style.display="";boot(d);return true}
+ catch(e){if(!silencioso){document.getElementById("gerr").textContent="Senha incorreta.";}return false}}
+document.getElementById("gf").addEventListener("submit",e=>{e.preventDefault();tentar(document.getElementById("gp").value.trim(),false)});
+(async()=>{let p=null;try{p=localStorage.getItem("cr_pw")}catch(e){}if(p)tentar(p,true)})();
+function boot(D){
+
+const CAP_MES=1000000;           // capacidade de referencia, R$/mes
+const moeda=v=>"R$ "+Math.round(v).toLocaleString("pt-BR");
+const curto=v=>v>=1e6?(v/1e6).toFixed(2).replace(".",",")+" Mi":Math.round(v/1000)+" mil";
+const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const rot=m=>{const[a,b]=m.split("-");return MES[+b-1]+"/"+a.slice(2)};
+document.getElementById("upd").textContent="Dados de "+UPD;
+
+const S=D.serie, U=S.slice(-12);
+const app=document.getElementById("app");
+let h="";
+
+/* ---------- 1. visao geral ---------- */
+// O FINAL DE PRODUCAO e lancado em lote - acumula e fecha quando da -
+// entao a serie por ele oscila o dobro e nao reflete o ritmo real.
+// A visao principal e por INICIO DE CORTE, que e apontado na hora.
+const tPV=U.reduce((a,s)=>a+s.cpv,0), tPC=U.reduce((a,s)=>a+s.pc,0);
+const tPVf=U.reduce((a,s)=>a+s.fpv,0);
+const tFN=U.reduce((a,s)=>a+s.fn,0), tCN=U.reduce((a,s)=>a+s.cn,0);
+const tPrev=U.reduce((a,s)=>a+s.prev,0), tReal=U.reduce((a,s)=>a+s.real,0);
+const ocup=tPV/12/CAP_MES;
+h+=`<div class="card"><h2>Últimos 12 meses</h2>
+<p class="sub">Medido pelo <b>início de corte</b>, que é apontado na hora pelo operador. O final de produção é fechado em lote, acumulando vários dias, e por isso oscila o dobro — serve para conferência, não para medir ritmo.<br>Valor a preço de fábrica (empresa Moveis Kretzer): o mesmo projeto existe duas vezes na base, uma com o valor da fábrica e outra com o da loja.</p>
+<div class="kpis">
+ <div class="kpi"><div class="v">${curto(tPV)}</div><div class="l">iniciado no período</div></div>
+ <div class="kpi"><div class="v">${curto(tPV/12)}</div><div class="l">média mensal de corte</div></div>
+ <div class="kpi ${ocup<.8?"al":"ok"}"><div class="v">${Math.round(ocup*100)}%</div><div class="l">da capacidade de ${curto(CAP_MES)}/mês</div></div>
+ <div class="kpi"><div class="v">${tCN}</div><div class="l">projetos iniciados</div></div>
+ <div class="kpi"><div class="v">${tFN}</div><div class="l">finalizados (lançado em lote)</div></div>
+ <div class="kpi"><div class="v">${tPC.toLocaleString("pt-BR")}</div><div class="l">peças produzidas</div></div>
+</div>
+<p class="nota">A fábrica roda a <b>${Math.round(ocup*100)}% da capacidade</b>.
+${ocup<.85?"Ou seja: a sensação de estar sempre no limite não vem de falta de capacidade, e sim de fluxo e previsibilidade — fila mal distribuída, retrabalho e espera.":""}</p></div>`;
+
+/* ---------- 2. serie mensal ---------- */
+const maxPV=Math.max(...U.map(s=>Math.max(s.cpv,s.fpv)));
+h+=`<div class="card"><h2>Produção mês a mês</h2>
+<p class="sub">Barra = valor que <b>entrou no corte</b> no mês. A linha tracejada é a capacidade de R$ 1 Mi.</p>
+<div class="g">`;
+U.forEach(s=>{const al=s.cpv/maxPV*100;
+ h+=`<div class="c" title="${rot(s.m)} — iniciado: ${moeda(s.cpv)} em ${s.cn} projetos · finalizado: ${moeda(s.fpv)} em ${s.fn} · ${s.pc.toLocaleString("pt-BR")} peças">
+ <div class="b ${s.cpv>=CAP_MES?"g":(s.cpv<CAP_MES*.6?"r":"")}" style="height:${al}%"></div></div>`});
+h+=`<div class="cap" style="bottom:${CAP_MES/maxPV*100}%">capacidade ${curto(CAP_MES)}</div>`;
+h+=`</div><div style="display:flex;gap:3px;margin-bottom:18px">`;
+U.forEach(s=>{h+=`<div style="flex:1;text-align:center;font-size:9.5px;color:#5a6673;min-width:0">${rot(s.m)}</div>`});
+h+=`</div>
+<table><tr><th>Mês</th><th class="n">Proj.</th><th class="n">Entrou no corte</th><th>Capacidade</th>
+ <th class="n">Finalizado</th><th class="n">Custo</th><th class="n">Peças</th><th class="n">Lead</th></tr>`;
+U.forEach(s=>{const u=s.cpv/CAP_MES, cc=s.ccpv?s.fcusto/s.ccpv*100:0;
+ h+=`<tr><td>${rot(s.m)}</td><td class="n">${s.cn}</td>
+ <td class="n"><b>${moeda(s.cpv)}</b></td>
+ <td><div class="bw"><div class="bf ${u>=1?"g":(u<.6?"r":"w")}" style="width:${Math.min(u*100,100)}%"></div>
+ <div class="pct">${Math.round(u*100)}%</div></div></td>
+ <td class="n" style="color:#7a8692">${moeda(s.fpv)}</td>
+ <td class="n">${cc?cc.toFixed(0)+"%":"—"}</td>
+ <td class="n">${s.pc.toLocaleString("pt-BR")}</td>
+ <td class="n">${s.lead!=null?s.lead+"d":"—"}</td></tr>`});
+h+=`</table><p class="nota">A coluna <b>Entrou no corte</b> é a medida de ritmo. <b>Finalizado</b> aparece em cinza porque é lançado em lote e distorce o mês.<br>Custo em % do valor, apenas nos projetos com detalhamento. Lead = mediana de dias entre início e final de produção.</p></div>`;
+
+/* ---------- 3. valor por peca ---------- */
+h+=`<div class="card"><h2>Valor por peça</h2>
+<p class="sub">Pintura e lâmina entram no valor do projeto e distorcem a comparação: dois projetos com as mesmas peças
+custam diferente se um for laqueado. A coluna "sem acabamento" tira pintura e lâmina para a base ficar comparável.</p>
+<table><tr><th>Mês</th><th class="n">Peças</th><th class="n">Valor detalhado</th><th class="n">Sem acabamento</th>
+<th class="n">% acabamento</th><th class="n">R$/peça</th></tr>`;
+let sb=0,sd=0;
+U.forEach(s=>{const ac=s.det?(1-s.base/s.det)*100:null, rp=s.pc&&s.base?s.base/s.pc:null;
+ sb+=s.base||0; sd+=s.det||0;
+ h+=`<tr><td>${rot(s.m)}</td><td class="n">${s.pc.toLocaleString("pt-BR")}</td>
+ <td class="n">${s.det?moeda(s.det):"—"}</td><td class="n">${s.base?moeda(s.base):"—"}</td>
+ <td class="n">${ac!=null?ac.toFixed(1)+"%":"—"}</td>
+ <td class="n"><b>${rp?moeda(rp):"—"}</b></td></tr>`});
+h+=`</table><p class="nota">No período, <b>${sd?((1-sb/sd)*100).toFixed(1):"—"}%</b> do valor é pintura e lâmina.
+<b>Atenção ao R$/peça:</b> as peças vêm dos apontamentos da PPCP, que cobrem parte das ordens, enquanto o valor vem da base inteira.
+Serve para tendência, não como valor absoluto — a referência confiável é a mediana de ${moeda(D.qual.mediana_peca||0)}/peça da carteira ativa.</p></div>`;
+
+/* ---------- 4. tempo previsto x real ---------- */
+const op=D.oper.filter(o=>o.prev>0).slice(0,12);
+h+=`<div class="card"><h2>Tempo previsto × tempo real por operação</h2>
+<p class="sub">Onde a fábrica perde (ou ganha) tempo. Desvio positivo = levou mais que o previsto.</p>
+<table><tr><th>Operação</th><th class="n">Ordens</th><th class="n">Peças</th><th class="n">Previsto</th><th class="n">Real</th><th class="n">Desvio</th><th>&nbsp;</th></tr>`;
+const maxD=Math.max(...op.map(o=>Math.abs(o.real/o.prev-1)));
+op.forEach(o=>{const dv=o.real/o.prev-1;
+ h+=`<tr class="${dv>1?"est":""}"><td>${o.nome}</td><td class="n">${o.n}</td>
+ <td class="n">${o.pc.toLocaleString("pt-BR")}</td>
+ <td class="n">${Math.round(o.prev).toLocaleString("pt-BR")}h</td>
+ <td class="n">${Math.round(o.real).toLocaleString("pt-BR")}h</td>
+ <td class="n"><b style="color:${dv>0?"#c0392b":"#2e7d32"}">${dv>0?"+":""}${Math.round(dv*100)}%</b></td>
+ <td><div class="bw" style="min-width:80px"><div class="bf ${dv>1?"r":(dv>0?"w":"g")}"
+ style="width:${Math.min(Math.abs(dv)/maxD*100,100)}%"></div></div></td></tr>`});
+h+=`</table><p class="nota">Operações com desvio muito alto em vermelho. Desvio negativo significa que a operação é mais rápida
+que o tempo padrão — provável sinal de tempo padrão desatualizado, e não de ganho real.
+Vale revisar os tempos padrão antes de usar isso para cobrar a equipe.</p></div>`;
+
+/* ---------- 5. lead time ---------- */
+if(D.lead&&D.lead.n){const L=D.lead;
+h+=`<div class="card"><h2>Lead time de produção</h2>
+<p class="sub">Dias entre o início do corte e o final da produção, em ${L.n} projetos do período.</p>
+<div class="kpis">
+ <div class="kpi"><div class="v">${L.p25}d</div><div class="l">25% terminam até</div></div>
+ <div class="kpi al"><div class="v">${L.med}d</div><div class="l">mediana</div></div>
+ <div class="kpi"><div class="v">${L.p75}d</div><div class="l">75% terminam até</div></div>
+ <div class="kpi"><div class="v">${L.p90}d</div><div class="l">90% terminam até</div></div>
+</div>
+<p class="nota">O prazo de tabela usado na venda é de <b>14 dias</b> de produção (20 com pintura, 25 com lâmina).
+A realidade mediana é <b>${L.med} dias</b>, e um quarto dos projetos passa de ${L.p75}.
+Esse é um dos motivos de todo pedido parecer atrasado: a promessa não corresponde ao tempo real de passagem pela fábrica.</p></div>`;}
+
+/* ---------- 6. qualidade dos dados ---------- */
+const Q=D.qual;
+h+=`<div class="card"><h2>Qualidade dos dados</h2>
+<p class="sub">Problemas que distorcem os indicadores acima. Vale corrigir na origem.</p>
+<div class="kpis">
+ <div class="kpi ${Q.furo?"al":""}"><div class="v">${Q.furo}</div><div class="l">sem apontamento de corte · ${curto(Q.furo_pv)}</div></div>
+ <div class="kpi"><div class="v">${Q.sem_inicio}</div><div class="l">final sem início de corte</div></div>
+ <div class="kpi"><div class="v">${Q.zero_pecas.length}</div><div class="l">valor alto e zero peças</div></div>
+ <div class="kpi"><div class="v">${Q.lotes.length}</div><div class="l">dias de lançamento em lote</div></div>
+ <div class="kpi ${Q.invertido.length?"al":""}"><div class="v">${Q.invertido.length}</div><div class="l">final antes do início</div></div>
+</div>`;
+if(Q.lotes.length){h+=`<p class="nota" style="margin-top:12px"><b>Dias de lançamento em lote</b> (regularização em massa, não produção do dia) —
+já excluídos dos números acima: ${Q.lotes.map(l=>l.d.split("-").reverse().join("/")+" ("+l.n+" projetos)").join(" · ")}</p>`;}
+if(Q.furo){h+=`<p class="nota"><b>Apontamento de corte:</b> ${Q.furo} projetos estão em etapa posterior ao corte sem data de início.
+O apontamento depende do operador ler o código na seccionadora — falha do computador ou esquecimento deixa o projeto sem registro,
+e ele some da medição de produtividade.</p>`;}
+if(Q.outliers.length){h+=`<p class="nota"><b>Valor possivelmente no ambiente errado</b> (R$/peça acima de 5× a mediana de ${moeda(Q.mediana_peca||0)}):</p>
+<table style="margin-top:6px"><tr><th>Projeto</th><th>Ambiente</th><th>Cliente</th><th class="n">Valor</th><th class="n">Peças</th><th class="n">R$/peça</th></tr>`;
+Q.outliers.forEach(o=>{h+=`<tr class="est"><td>${o.pj}</td><td>${o.amb}</td><td>${o.cli}</td>
+ <td class="n">${moeda(o.pv)}</td><td class="n">${o.pc}</td><td class="n"><b>${moeda(o.rs)}</b></td></tr>`});
+h+=`</table>`;}
+if(Q.zero_pecas.length){h+=`<p class="nota"><b>Valor relevante e zero peças</b> — distorcem qualquer indicador por peça:</p>
+<table style="margin-top:6px"><tr><th>Projeto</th><th>Ambiente</th><th>Cliente</th><th class="n">Valor</th></tr>`;
+Q.zero_pecas.forEach(o=>{h+=`<tr><td>${o.pj}</td><td>${o.amb}</td><td>${o.cli}</td><td class="n">${moeda(o.pv)}</td></tr>`});
+h+=`</table>`;}
+h+=`<p class="nota">Fontes: ${D.fontes.projetos.toLocaleString("pt-BR")} projetos · ${D.fontes.consulta2.toLocaleString("pt-BR")} linhas de produto ·
+${D.fontes.ppcp.toLocaleString("pt-BR")} apontamentos de operação · ${D.fontes.cronograma} projetos na carteira ativa.
+Série desde ${D.desde}.</p></div>`;
+
+app.innerHTML=h;
+
+}
+</script></div></body></html>
